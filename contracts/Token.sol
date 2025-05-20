@@ -12,6 +12,12 @@ contract Token {
     // tracks balances
     mapping(address => uint256) public balanceOf;
 
+    event Transfer(
+            address indexed from, 
+            address indexed to, 
+            uint256 value
+    );
+
     constructor(
             string memory _name, 
             string memory _symbol, 
@@ -21,6 +27,24 @@ contract Token {
         symbol = _symbol;
         totalSupply = _totalSupply * (10 ** decimals);
         balanceOf[msg.sender] = totalSupply;   // sends tokens
+    }
 
+    function transfer(
+            address _to, 
+            uint256 _value) 
+        public returns (bool success
+    ) {
+        // Check if sender has enough tokens
+        require(balanceOf[msg.sender] >= _value);
+        // Check if receiver is valid and tokens are not burned
+        require(_to != address(0));
+        // Deduct tokens from spender 
+        balanceOf[msg.sender] = balanceOf[msg.sender] - _value;
+        // Credit tokens to receiver
+        balanceOf[_to] = balanceOf[_to] + _value;
+        // Emit transfer event
+        emit Transfer(msg.sender, _to, _value);
+        // Return success
+        return true;
     }
 }
