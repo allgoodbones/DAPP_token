@@ -28,8 +28,8 @@ contract Token {
     constructor(
             string memory _name, 
             string memory _symbol, 
-            uint256 _totalSupply
-    ) {
+            uint256 _totalSupply) 
+    {
         name = _name;
         symbol = _symbol;
         totalSupply = _totalSupply * (10 ** decimals);
@@ -39,21 +39,33 @@ contract Token {
     function transfer(
             address _to, 
             uint256 _value) 
-        public returns (bool success
-    ) {
+        public returns (bool success) 
+    {
         // Check if sender has enough tokens
         require(balanceOf[msg.sender] >= _value);
-        // Check if receiver is valid and tokens are not burned
-        require(_to != address(0));
-        // Deduct tokens from spender 
-        balanceOf[msg.sender] = balanceOf[msg.sender] - _value;
-        // Credit tokens to receiver
-        balanceOf[_to] = balanceOf[_to] + _value;
+        // Check if receiver is valid and tokens are not burned using ineternal function
+        _transfer(msg.sender, _to, _value);
         // Emit transfer event
         emit Transfer(msg.sender, _to, _value);
         // Return success
         return true;
     }
+
+    function _transfer(
+            address _from, 
+            address _to, 
+            uint256 _value
+    ) internal {
+        // Check if receiver is valid and tokens are not burned
+        require(_to != address(0));
+        // Deduct tokens from spender 
+        balanceOf[_from] = balanceOf[_from] - _value;
+        // Credit tokens to receiver
+        balanceOf[_to] = balanceOf[_to] + _value;
+        // Emit transfer event
+        emit Transfer(_from, _to, _value);
+    }
+    
 
     function approve(
             address _spender, 
@@ -67,6 +79,25 @@ contract Token {
         allowance[msg.sender][_spender] = _value;
 
         emit Approval(msg.sender, _spender, _value);
+        return true;
+    }
+
+    function transferFrom(
+            address _from, 
+            address _to, 
+            uint256 _value
+    ) public returns (bool success) 
+    {
+        //check approval
+        require (_value <= balanceOf[_from]);
+        require (_value <= allowance[_from][msg.sender]);
+
+        //reset allowance
+        allowance[_from][msg.sender] = allowance[_from][msg.sender] - _value;
+
+        // spend tokens
+        _transfer(_from, _to, _value);
+        
         return true;
     }
 }
