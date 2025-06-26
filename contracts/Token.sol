@@ -88,11 +88,11 @@ contract Token {
             uint256 _value
     ) public returns (bool success) 
     {
-        //check approval
+        // check approval
         require (_value <= balanceOf[_from]);
         require (_value <= allowance[_from][msg.sender]);
 
-        //reset allowance
+        // reset allowance
         allowance[_from][msg.sender] = allowance[_from][msg.sender] - _value;
 
         // spend tokens
